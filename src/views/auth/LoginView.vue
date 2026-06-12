@@ -16,7 +16,6 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import axios from 'axios'
 
 const email = ref('')
 const password = ref('')
@@ -26,11 +25,7 @@ const authStore = useAuthStore()
 
 async function handleLogin() {
   try {
-    const res = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, {
-      email: email.value,
-      password: password.value
-    })
-    authStore.setAuth(res.data.token, res.data.user)
+    await authStore.login(email.value, password.value)
     router.push('/dashboard')
   } catch (e) {
     error.value = 'Email o contraseña incorrectos'
