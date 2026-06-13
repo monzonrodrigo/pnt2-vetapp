@@ -1,25 +1,42 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { supabase } from '@/services/supabase'
 
 export const useAuthStore = defineStore('auth', () => {
-  const token = ref(localStorage.getItem('token') || null)
-  const user = ref(JSON.parse(localStorage.getItem('user')) || null)
+  const user = ref(null)
+  const session = ref(null)
 
-  const isAuthenticated = computed(() => !!token.value)
+  const isAuthenticated = computed(() => !!session.value)
 
-  function setAuth(newToken, newUser) {
-    token.value = newToken
-    user.value = newUser
-    localStorage.setItem('token', newToken)
-    localStorage.setItem('user', JSON.stringify(newUser))
+  async function init() {
+    const { data } = await supabase.auth.getSession()
+    session.value = data.session
+    user.value = data.session?.user ?? null
+
+    supabase.auth.onAuthStateChange((_event, newSession) => {
+      session.value = newSession
+      user.value = newSession?.user ?? null
+    })
   }
 
-  function logout() {
-    token.value = null
+  async function login(email, password) {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    if (error) throw error
+    session.value = data.session
+    user.value = data.user
+  }
+
+  async function register(email, password) {
+    const { data, error } = await supabase.auth.signUp({ email, password })
+    if (error) throw error
+    return data
+  }
+
+  async function logout() {
+    await supabase.auth.signOut()
+    session.value = null
     user.value = null
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
   }
 
-  return { token, user, isAuthenticated, setAuth, logout }
+  return { user, session, isAuthenticated, init, login, register, logout }
 })
