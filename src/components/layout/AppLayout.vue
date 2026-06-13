@@ -4,10 +4,17 @@
       <div class="logo">
         <h2>🐾 VetTech</h2>
       </div>
+      <div class="rol-badge" :class="authStore.perfil?.rol">
+        {{ authStore.perfil?.rol || 'cargando...' }}
+      </div>
       <ul>
         <li><RouterLink to="/dashboard">Dashboard</RouterLink></li>
-        <li><RouterLink to="/duenos">Dueños</RouterLink></li>
-        <li><RouterLink to="/mascotas">Mascotas</RouterLink></li>
+        <li v-if="authStore.isAdmin || authStore.isVeterinario">
+          <RouterLink to="/duenos">Dueños</RouterLink>
+        </li>
+        <li v-if="authStore.isAdmin || authStore.isVeterinario">
+          <RouterLink to="/mascotas">Mascotas</RouterLink>
+        </li>
         <li><RouterLink to="/turnos">Turnos</RouterLink></li>
         <li><RouterLink to="/asistente">🤖 Asistente</RouterLink></li>
       </ul>
@@ -40,4 +47,8 @@ function handleLogout() {
 .sidebar a.router-link-active { background: #2563eb; color: white; }
 .sidebar button { background: #ef4444; color: white; border: none; padding: 0.5rem; border-radius: 6px; cursor: pointer; }
 .content { flex: 1; padding: 2rem; overflow-y: auto; background: #f8fafc; }
+.rol-badge { padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; text-transform: capitalize; text-align: center; }
+.rol-badge.admin { background: #7c3aed; color: white; }
+.rol-badge.veterinario { background: #0284c7; color: white; }
+.rol-badge.dueno { background: #16a34a; color: white; }
 </style>
