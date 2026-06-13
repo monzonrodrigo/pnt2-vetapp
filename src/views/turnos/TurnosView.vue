@@ -18,7 +18,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="turno in turnosStore.turnos" :key="turno._id">
+            <tr v-for="turno in turnosStore.turnos" :key="turno.id">
               <td>{{ formatFecha(turno.fecha) }}</td>
               <td>{{ turno.hora }}</td>
               <td>{{ nombreMascota(turno.mascota_id) }}</td>
@@ -26,7 +26,7 @@
               <td><span :class="['badge', turno.estado]">{{ turno.estado }}</span></td>
               <td class="acciones">
                 <button class="btn-edit" @click="abrirModal(turno)">Editar</button>
-                <button class="btn-delete" @click="eliminar(turno._id)">Eliminar</button>
+                <button class="btn-delete" @click="eliminar(turno.id)">Eliminar</button>
               </td>
             </tr>
             <tr v-if="turnosStore.turnos.length === 0">
@@ -98,7 +98,7 @@
   
   async function guardar() {
     if (editando.value) {
-      await turnosStore.actualizar(editando.value._id, form.value)
+      await turnosStore.actualizar(editando.value.id, form.value)
     } else {
       await turnosStore.crear(form.value)
     }
