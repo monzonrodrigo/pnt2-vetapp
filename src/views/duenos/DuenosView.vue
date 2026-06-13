@@ -20,13 +20,13 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="dueno in duenosFiltrados" :key="dueno._id">
+          <tr v-for="dueno in duenosFiltrados" :key="dueno.id">
             <td>{{ dueno.nombre }}</td>
             <td>{{ dueno.email }}</td>
             <td>{{ dueno.telefono }}</td>
             <td class="acciones">
               <button class="btn-edit" @click="abrirModal(dueno)">Editar</button>
-              <button class="btn-delete" @click="eliminar(dueno._id)">Eliminar</button>
+              <button class="btn-delete" @click="eliminar(dueno.id)">Eliminar</button>
             </td>
           </tr>
           <tr v-if="duenosFiltrados.length === 0">
@@ -83,7 +83,7 @@ function cerrarModal() {
 
 async function guardar() {
   if (editando.value) {
-    await store.actualizar(editando.value._id, form.value)
+    await store.actualizar(editando.value.id, form.value)
   } else {
     await store.crear(form.value)
   }

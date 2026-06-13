@@ -21,14 +21,14 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="mascota in mascotasFiltradas" :key="mascota._id">
+          <tr v-for="mascota in mascotasFiltradas" :key="mascota.id">
             <td>{{ mascota.nombre }}</td>
             <td>{{ mascota.especie }}</td>
             <td>{{ mascota.raza }}</td>
             <td>{{ nombreDueno(mascota.dueno_id) }}</td>
             <td class="acciones">
               <button class="btn-edit" @click="abrirModal(mascota)">Editar</button>
-              <button class="btn-delete" @click="eliminar(mascota._id)">Eliminar</button>
+              <button class="btn-delete" @click="eliminar(mascota.id)">Eliminar</button>
             </td>
           </tr>
           <tr v-if="mascotasFiltradas.length === 0">
@@ -99,7 +99,7 @@ function cerrarModal() {
 
 async function guardar() {
   if (editando.value) {
-    await store.actualizar(editando.value._id, form.value)
+    await store.actualizar(editando.value.id, form.value)
   } else {
     await store.crear(form.value)
   }
