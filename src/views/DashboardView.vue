@@ -1,50 +1,53 @@
 <template>
   <div>
-    <div class="page-header">
-      <h1>Dueños</h1>
-      <button class="btn-primary" @click="abrirModal()">+ Nuevo dueño</button>
+    <h1>Dashboard</h1>
+    <p class="welcome">Bienvenido, {{ authStore.user?.email }}</p>
+    <p class="rol">Rol: <strong>{{ authStore.perfil?.rol }}</strong></p>
+
+    <div class="cards" v-if="authStore.isAdmin || authStore.isVeterinario">
+      <div class="card">
+        <div class="card-icon blue">👤</div>
+        <div class="card-info">
+          <span class="card-value">{{ duenosStore.duenos.length }}</span>
+          <span class="card-label">Dueños registrados</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-icon green">🐾</div>
+        <div class="card-info">
+          <span class="card-value">{{ mascotasStore.mascotas.length }}</span>
+          <span class="card-label">Mascotas registradas</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-icon yellow">📅</div>
+        <div class="card-info">
+          <span class="card-value">{{ turnosHoy }}</span>
+          <span class="card-label">Turnos hoy</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-icon purple">⏳</div>
+        <div class="card-info">
+          <span class="card-value">{{ turnosPendientes }}</span>
+          <span class="card-label">Turnos pendientes</span>
+        </div>
+      </div>
     </div>
 
-    <div class="search-bar">
-      <input v-model="busqueda" placeholder="Buscar por nombre o email..." />
-    </div>
-
-    <div class="tabla-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Email</th>
-            <th>Teléfono</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="dueno in duenosFiltrados" :key="dueno._id">
-            <td>{{ dueno.nombre }}</td>
-            <td>{{ dueno.email }}</td>
-            <td>{{ dueno.telefono }}</td>
-            <td class="acciones">
-              <button class="btn-edit" @click="abrirModal(dueno)">Editar</button>
-              <button class="btn-delete" @click="eliminar(dueno._id)">Eliminar</button>
-            </td>
-          </tr>
-          <tr v-if="duenosFiltrados.length === 0">
-            <td colspan="4" class="empty">No hay dueños registrados</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div v-if="modalVisible" class="modal-overlay" @click.self="cerrarModal">
-      <div class="modal">
-        <h2>{{ editando ? 'Editar dueño' : 'Nuevo dueño' }}</h2>
-        <input v-model="form.nombre" placeholder="Nombre completo" />
-        <input v-model="form.email" placeholder="Email" type="email" />
-        <input v-model="form.telefono" placeholder="Teléfono" />
-        <div class="modal-actions">
-          <button class="btn-secondary" @click="cerrarModal">Cancelar</button>
-          <button class="btn-primary" @click="guardar">Guardar</button>
+    <div class="cards" v-if="authStore.isDueno">
+      <div class="card">
+        <div class="card-icon yellow">📅</div>
+        <div class="card-info">
+          <span class="card-value">{{ turnosHoy }}</span>
+          <span class="card-label">Mis turnos hoy</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-icon purple">⏳</div>
+        <div class="card-info">
+          <span class="card-value">{{ turnosPendientes }}</span>
+          <span class="card-label">Mis turnos pendientes</span>
         </div>
       </div>
     </div>
@@ -52,69 +55,42 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
+import { useAuthStore } from '@/stores/auth'
 import { useDuenosStore } from '@/stores/duenos'
+import { useMascotasStore } from '@/stores/mascotas'
+import { useTurnosStore } from '@/stores/turnos'
 
-const store = useDuenosStore()
-const busqueda = ref('')
-const modalVisible = ref(false)
-const editando = ref(null)
-const form = ref({ nombre: '', email: '', telefono: '' })
+const authStore = useAuthStore()
+const duenosStore = useDuenosStore()
+const mascotasStore = useMascotasStore()
+const turnosStore = useTurnosStore()
 
-const duenosFiltrados = computed(() =>
-  store.duenos.filter(d =>
-    d.nombre.toLowerCase().includes(busqueda.value.toLowerCase()) ||
-    d.email.toLowerCase().includes(busqueda.value.toLowerCase())
-  )
-)
+const hoy = new Date().toISOString().slice(0, 10)
+const turnosHoy = computed(() => turnosStore.turnos.filter(t => t.fecha === hoy).length)
+const turnosPendientes = computed(() => turnosStore.turnos.filter(t => t.estado === 'pendiente').length)
 
-function abrirModal(dueno = null) {
-  editando.value = dueno
-  form.value = dueno
-    ? { nombre: dueno.nombre, email: dueno.email, telefono: dueno.telefono }
-    : { nombre: '', email: '', telefono: '' }
-  modalVisible.value = true
-}
-
-function cerrarModal() {
-  modalVisible.value = false
-  editando.value = null
-}
-
-async function guardar() {
-  if (editando.value) {
-    await store.actualizar(editando.value._id, form.value)
-  } else {
-    await store.crear(form.value)
+onMounted(async () => {
+  await turnosStore.cargar()
+  if (authStore.isAdmin || authStore.isVeterinario) {
+    await duenosStore.cargar()
+    await mascotasStore.cargar()
   }
-  cerrarModal()
-}
-
-async function eliminar(id) {
-  if (confirm('¿Eliminar este dueño?')) await store.eliminar(id)
-}
-
-onMounted(() => store.cargar())
+})
 </script>
 
 <style scoped>
-.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-h1 { font-size: 1.6rem; font-weight: 700; color: #1e293b; }
-.search-bar { margin-bottom: 1rem; }
-.search-bar input { width: 100%; max-width: 360px; }
-.tabla-wrapper { background: white; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; }
-table { width: 100%; border-collapse: collapse; }
-th { background: #f8fafc; padding: 0.85rem 1rem; text-align: left; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 1px solid #e2e8f0; }
-td { padding: 0.85rem 1rem; border-bottom: 1px solid #f1f5f9; color: #334155; }
-tr:last-child td { border-bottom: none; }
-.acciones { display: flex; gap: 0.5rem; }
-.empty { text-align: center; color: #94a3b8; padding: 2rem; }
-.btn-primary { background: #2563eb; color: white; border: none; padding: 0.55rem 1.1rem; border-radius: 6px; cursor: pointer; font-size: 0.9rem; }
-.btn-secondary { background: #f1f5f9; color: #334155; border: none; padding: 0.55rem 1.1rem; border-radius: 6px; cursor: pointer; font-size: 0.9rem; }
-.btn-edit { background: #f0f9ff; color: #0284c7; border: none; padding: 0.4rem 0.8rem; border-radius: 5px; cursor: pointer; font-size: 0.85rem; }
-.btn-delete { background: #fef2f2; color: #ef4444; border: none; padding: 0.4rem 0.8rem; border-radius: 5px; cursor: pointer; font-size: 0.85rem; }
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 100; }
-.modal { background: white; border-radius: 12px; padding: 2rem; width: 400px; display: flex; flex-direction: column; gap: 1rem; }
-.modal h2 { font-size: 1.2rem; color: #1e293b; }
-.modal-actions { display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 0.5rem; }
+h1 { font-size: 1.6rem; font-weight: 700; color: #1e293b; margin-bottom: 0.25rem; }
+.welcome { color: #64748b; margin-bottom: 0.25rem; }
+.rol { color: #64748b; margin-bottom: 1.5rem; font-size: 0.9rem; }
+.cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
+.card { background: white; border-radius: 10px; padding: 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 1rem; }
+.card-icon { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+.card-icon.blue { background: #eff6ff; }
+.card-icon.green { background: #f0fdf4; }
+.card-icon.yellow { background: #fefce8; }
+.card-icon.purple { background: #faf5ff; }
+.card-info { display: flex; flex-direction: column; }
+.card-value { font-size: 1.8rem; font-weight: 700; color: #1e293b; line-height: 1; }
+.card-label { font-size: 0.8rem; color: #64748b; margin-top: 0.25rem; }
 </style>
