@@ -2,7 +2,7 @@
   <div>
     <div class="page-header">
       <h1>Dueños</h1>
-      <button class="btn-primary" @click="abrirModal()">+ Nuevo dueño</button>
+      <button v-if="authStore.isAdmin" class="btn-primary" @click="abrirModal()">+ Nuevo dueño</button>
     </div>
 
     <div class="search-bar">
@@ -25,8 +25,8 @@
             <td>{{ dueno.email }}</td>
             <td>{{ dueno.telefono }}</td>
             <td class="acciones">
-              <button class="btn-edit" @click="abrirModal(dueno)">Editar</button>
-              <button class="btn-delete" @click="eliminar(dueno.id)">Eliminar</button>
+              <button v-if="authStore.isAdmin" class="btn-edit" @click="abrirModal(dueno)">Editar</button>
+              <button v-if="authStore.isAdmin" class="btn-delete" @click="eliminar(dueno.id)">Eliminar</button>
             </td>
           </tr>
           <tr v-if="duenosFiltrados.length === 0">
@@ -54,8 +54,10 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useDuenosStore } from '@/stores/duenos'
+import { useAuthStore } from '@/stores/auth'
 
 const store = useDuenosStore()
+const authStore = useAuthStore()
 const busqueda = ref('')
 const modalVisible = ref(false)
 const editando = ref(null)

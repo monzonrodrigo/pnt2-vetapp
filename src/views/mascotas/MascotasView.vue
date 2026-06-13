@@ -2,7 +2,7 @@
   <div>
     <div class="page-header">
       <h1>Mascotas</h1>
-      <button class="btn-primary" @click="abrirModal()">+ Nueva mascota</button>
+      <button v-if="authStore.isAdmin" class="btn-primary" @click="abrirModal()">+ Nueva mascota</button>
     </div>
 
     <div class="search-bar">
@@ -27,8 +27,8 @@
             <td>{{ mascota.raza }}</td>
             <td>{{ nombreDueno(mascota.dueno_id) }}</td>
             <td class="acciones">
-              <button class="btn-edit" @click="abrirModal(mascota)">Editar</button>
-              <button class="btn-delete" @click="eliminar(mascota.id)">Eliminar</button>
+              <button v-if="authStore.isAdmin" class="btn-edit" @click="abrirModal(mascota)">Editar</button>
+              <button v-if="authStore.isAdmin" class="btn-delete" @click="eliminar(mascota.id)">Eliminar</button>
             </td>
           </tr>
           <tr v-if="mascotasFiltradas.length === 0">
@@ -47,7 +47,7 @@
         <input v-model="form.edad" placeholder="Edad (años)" type="number" />
         <select v-model="form.dueno_id">
           <option value="">Seleccionar dueño</option>
-          <option v-for="d in duenosStore.duenos" :key="d._id" :value="d._id">
+          <option v-for="d in duenosStore.duenos" :key="d.id" :value="d.id">
             {{ d.nombre }}
           </option>
         </select>
@@ -64,8 +64,10 @@
 import { ref, computed, onMounted } from 'vue'
 import { useMascotasStore } from '@/stores/mascotas'
 import { useDuenosStore } from '@/stores/duenos'
+import { useAuthStore } from '@/stores/auth'
 
 const store = useMascotasStore()
+const authStore = useAuthStore()
 const duenosStore = useDuenosStore()
 const busqueda = ref('')
 const modalVisible = ref(false)
@@ -80,7 +82,7 @@ const mascotasFiltradas = computed(() =>
 )
 
 function nombreDueno(id) {
-  const d = duenosStore.duenos.find(d => d._id === id)
+  const d = duenosStore.duenos.find(d => d.id === id)
   return d ? d.nombre : '-'
 }
 
