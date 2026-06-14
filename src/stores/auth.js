@@ -5,18 +5,34 @@ import { supabase } from '@/services/supabase'
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
   const session = ref(null)
+  const perfil = ref(null)
 
   const isAuthenticated = computed(() => !!session.value)
+  const isAdmin = computed(() => perfil.value?.rol === 'admin')
+  const isVeterinario = computed(() => perfil.value?.rol === 'veterinario')
+  const isDueno = computed(() => perfil.value?.rol === 'dueno')
 
   async function init() {
     const { data } = await supabase.auth.getSession()
     session.value = data.session
     user.value = data.session?.user ?? null
+    if (user.value) await cargarPerfil()
 
-    supabase.auth.onAuthStateChange((_event, newSession) => {
+    supabase.auth.onAuthStateChange(async (_event, newSession) => {
       session.value = newSession
       user.value = newSession?.user ?? null
+      if (user.value) await cargarPerfil()
+      else perfil.value = null
     })
+  }
+
+  async function cargarPerfil() {
+    const { data } = await supabase
+      .from('perfiles')
+      .select('*')
+      .eq('id', user.value.id)
+      .single()
+    perfil.value = data
   }
 
   async function login(email, password) {
@@ -24,6 +40,7 @@ export const useAuthStore = defineStore('auth', () => {
     if (error) throw error
     session.value = data.session
     user.value = data.user
+    await cargarPerfil()
   }
 
   async function register(email, password) {
@@ -36,7 +53,8 @@ export const useAuthStore = defineStore('auth', () => {
     await supabase.auth.signOut()
     session.value = null
     user.value = null
+    perfil.value = null
   }
 
-  return { user, session, isAuthenticated, init, login, register, logout }
+  return { user, session, perfil, isAuthenticated, isAdmin, isVeterinario, isDueno, init, login, register, logout }
 })
