@@ -4,8 +4,9 @@
       <div class="logo">
         <h2>🐾 VetTech</h2>
       </div>
+      <div class="user-name">{{ authStore.perfil?.nombre || authStore.user?.email }}</div>
       <div class="rol-badge" :class="authStore.perfil?.rol">
-        {{ authStore.perfil?.rol || 'cargando...' }}
+        {{ authStore.perfil?.rol || '...' }}
       </div>
       <ul>
         <li><RouterLink to="/dashboard">Dashboard</RouterLink></li>
@@ -51,4 +52,5 @@ function handleLogout() {
 .rol-badge.admin { background: #7c3aed; color: white; }
 .rol-badge.veterinario { background: #0284c7; color: white; }
 .rol-badge.dueno { background: #16a34a; color: white; }
+.user-name { font-size: 0.85rem; color: #94a3b8; text-align: center; margin-bottom: 0.25rem; }
 </style>
