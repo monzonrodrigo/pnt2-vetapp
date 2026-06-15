@@ -12,18 +12,32 @@ export const useAuthStore = defineStore('auth', () => {
   const isVeterinario = computed(() => perfil.value?.rol === 'veterinario')
   const isDueno = computed(() => perfil.value?.rol === 'dueno')
 
+  const initialized = ref(false)
+
   async function init() {
+    if (initialized.value) return
+  
     const { data } = await supabase.auth.getSession()
+  
     session.value = data.session
     user.value = data.session?.user ?? null
-    if (user.value) await cargarPerfil()
-
+  
+    if (user.value) {
+      await cargarPerfil()
+    }
+  
     supabase.auth.onAuthStateChange(async (_event, newSession) => {
       session.value = newSession
       user.value = newSession?.user ?? null
-      if (user.value) await cargarPerfil()
-      else perfil.value = null
+  
+      if (user.value) {
+        await cargarPerfil()
+      } else {
+        perfil.value = null
+      }
     })
+  
+    initialized.value = true
   }
 
   async function cargarPerfil() {
@@ -56,5 +70,18 @@ export const useAuthStore = defineStore('auth', () => {
     perfil.value = null
   }
 
-  return { user, session, perfil, isAuthenticated, isAdmin, isVeterinario, isDueno, init, login, register, logout }
+  return {
+    user,
+    session,
+    perfil,
+    initialized,
+    isAuthenticated,
+    isAdmin,
+    isVeterinario,
+    isDueno,
+    init,
+    login,
+    register,
+    logout
+  }
 })

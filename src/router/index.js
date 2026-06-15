@@ -3,8 +3,16 @@ import { useAuthStore } from '@/stores/auth'
 
 const routes = [
   { path: '/', redirect: '/dashboard' },
-  { path: '/login', component: () => import('@/views/auth/LoginView.vue') },
-  { path: '/register', component: () => import('@/views/auth/RegisterView.vue') },
+  {
+    path: '/login',
+    component: () => import('@/views/auth/LoginView.vue'),
+    meta: { guestOnly: true }
+  },
+  {
+    path: '/register',
+    component: () => import('@/views/auth/RegisterView.vue'),
+    meta: { guestOnly: true }
+  },
   {
     path: '/dashboard',
     component: () => import('@/views/DashboardView.vue'),
@@ -43,7 +51,10 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
-
+  await authStore.init()
+  if (to.meta.guestOnly && authStore.isAuthenticated) {
+    return next('/dashboard')
+  }
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     return next('/login')
   }
