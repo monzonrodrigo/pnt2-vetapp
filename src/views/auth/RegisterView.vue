@@ -16,6 +16,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { supabase } from '@/services/supabase'
 
@@ -25,6 +26,7 @@ const password = ref('')
 const error = ref('')
 const mensaje = ref('')
 const authStore = useAuthStore()
+const router = useRouter()
 
 async function handleRegister() {
   if (!nombre.value || !email.value || !password.value) {
@@ -39,6 +41,8 @@ async function handleRegister() {
         .update({ nombre: nombre.value })
         .eq('id', data.user.id)
     }
+
+    router.push('/dashboard')
     mensaje.value = 'Cuenta creada. Revisá tu email para confirmar.'
     error.value = ''
 
