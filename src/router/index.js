@@ -33,6 +33,18 @@ const routes = [
   {
     path: '/sin-acceso',
     component: () => import('@/views/SinAccesoView.vue')
+  },
+  
+  {
+    path: '/mis-mascotas',
+    component: () => import('@/views/mascotas/MisMascotasView.vue'),
+    meta: { requiresAuth: true, roles: ['dueno'] }
+  },
+  
+  {
+    path: '/mis-turnos',
+    component: () => import('@/views/turnos/MisTurnosView.vue'),
+    meta: { requiresAuth: true, roles: ['dueno'] }
   }
 ]
 
