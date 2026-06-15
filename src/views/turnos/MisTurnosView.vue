@@ -136,7 +136,8 @@
   
   function formatFecha(fecha) {
     if (!fecha) return '-'
-    return new Date(fecha).toLocaleDateString('es-AR')
+    const [year, month, day] = fecha.split('-')
+    return `${day}/${month}/${year}`
   }
   
   function abrirModal() { modalVisible.value = true }
