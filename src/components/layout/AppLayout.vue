@@ -9,14 +9,26 @@
         {{ authStore.perfil?.rol || '...' }}
       </div>
       <ul>
-        <li><RouterLink to="/dashboard">Dashboard</RouterLink></li>
-        <li v-if="authStore.isAdmin || authStore.isVeterinario">
-          <RouterLink to="/duenos">Dueños</RouterLink>
-        </li>
-        <li v-if="authStore.isAdmin || authStore.isVeterinario">
-          <RouterLink to="/mascotas">Mascotas</RouterLink>
-        </li>
-        <li><RouterLink to="/turnos">Turnos</RouterLink></li>
+  <li><RouterLink to="/dashboard">Dashboard</RouterLink></li>
+
+  <!-- Admin y Veterinario -->
+  <li v-if="authStore.isAdmin || authStore.isVeterinario">
+    <RouterLink to="/duenos">Dueños</RouterLink>
+  </li>
+  <li v-if="authStore.isAdmin || authStore.isVeterinario">
+    <RouterLink to="/mascotas">Mascotas</RouterLink>
+  </li>
+  <li v-if="authStore.isAdmin || authStore.isVeterinario">
+    <RouterLink to="/turnos">Turnos</RouterLink>
+  </li>
+
+  <!-- Dueño -->
+  <li v-if="authStore.isDueno">
+    <RouterLink to="/mis-mascotas">Mis Mascotas</RouterLink>
+  </li>
+  <li v-if="authStore.isDueno">
+    <RouterLink to="/mis-turnos">Mis Turnos</RouterLink>
+  </li>
         <li><RouterLink to="/asistente">🤖 Asistente</RouterLink></li>
       </ul>
       <button @click="handleLogout">Cerrar sesión</button>
