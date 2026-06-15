@@ -60,19 +60,31 @@ import { useAuthStore } from '@/stores/auth'
 import { useDuenosStore } from '@/stores/duenos'
 import { useMascotasStore } from '@/stores/mascotas'
 import { useTurnosStore } from '@/stores/turnos'
+import { useMisTurnosStore } from '@/stores/misTurnos'
 
 const authStore = useAuthStore()
 const duenosStore = useDuenosStore()
 const mascotasStore = useMascotasStore()
 const turnosStore = useTurnosStore()
+const misTurnosStore = useMisTurnosStore()
 
 const hoy = new Date().toISOString().slice(0, 10)
-const turnosHoy = computed(() => turnosStore.turnos.filter(t => t.fecha === hoy).length)
-const turnosPendientes = computed(() => turnosStore.turnos.filter(t => t.estado === 'pendiente').length)
+
+const turnosHoy = computed(() => {
+  const store = authStore.isDueno ? misTurnosStore : turnosStore
+  return store.turnos.filter(t => t.fecha === hoy).length
+})
+
+const turnosPendientes = computed(() => {
+  const store = authStore.isDueno ? misTurnosStore : turnosStore
+  return store.turnos.filter(t => t.estado === 'pendiente').length
+})
 
 onMounted(async () => {
-  await turnosStore.cargar()
-  if (authStore.isAdmin || authStore.isVeterinario) {
+  if (authStore.isDueno) {
+    await misTurnosStore.cargar()
+  } else {
+    await turnosStore.cargar()
     await duenosStore.cargar()
     await mascotasStore.cargar()
   }
