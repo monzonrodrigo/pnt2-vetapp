@@ -1,8 +1,8 @@
 <template>
   <div>
     <h1>Dashboard</h1>
-    <p class="welcome">Bienvenido, {{ authStore.user?.email }}</p>
-    <p class="rol">Rol: <strong>{{ authStore.perfil?.rol }}</strong></p>
+    <p class="welcome">Bienvenido, {{ authStore.perfil?.nombre || authStore.user?.email }}</p>
+    <p v-if="authStore.isAdmin" class="rol">Rol: <strong>{{ authStore.perfil?.rol }}</strong></p>
 
     <div class="cards" v-if="authStore.isAdmin || authStore.isVeterinario">
       <div class="card">
