@@ -41,8 +41,20 @@
     <div v-if="modalVisible" class="modal-overlay" @click.self="cerrarModal">
       <div class="modal">
         <h2>{{ editando ? 'Editar turno' : 'Nuevo turno' }}</h2>
-        <input v-model="form.fecha" type="date" />
-        <input v-model="form.hora" type="time" />
+        <input v-model="form.fecha" type="date" :min="hoy" />
+
+        <select v-model="form.hora" :disabled="!form.fecha">
+        <option value="">
+        {{ form.fecha ? 'Seleccionar horario' : 'Primero elegí una fecha' }}
+        </option>
+        <option v-for="hora in horariosDisponibles" :key="hora" :value="hora">
+        {{ hora }} hs
+        </option>
+        </select>
+
+        <p v-if="form.fecha && horariosDisponibles.length === 0" style="color: #ef4444; font-size: 0.85rem; margin-top: 0.25rem;">
+         No quedan turnos disponibles para esta fecha.
+        </p>
         <select v-model="form.mascota_id">
           <option value="">Seleccionar mascota</option>
           <option v-for="m in mascotasStore.mascotas" :key="m.id" :value="m.id">
@@ -65,17 +77,48 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useTurnosStore } from '@/stores/turnos'
 import { useMascotasStore } from '@/stores/mascotas'
 import { useAuthStore } from '@/stores/auth'
+
 
 const turnosStore = useTurnosStore()
 const mascotasStore = useMascotasStore()
 const authStore = useAuthStore()
 const modalVisible = ref(false)
+const hoy = new Date().toISOString().slice(0, 10)
 const editando = ref(null)
 const form = ref({ fecha: '', hora: '', mascota_id: '', motivo: '', estado: 'pendiente' })
+const todosLosHorarios = [
+  '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+  '12:00', '12:30', '13:00', '13:30', '14:00', '14:30',
+  '15:00', '15:30', '16:00', '16:30', '17:00', '17:30'
+]
+
+const horariosDisponibles = computed(() => {
+  if (!form.value.fecha) return []
+
+  const ahora = new Date()
+  const esHoy = form.value.fecha === hoy
+
+  return todosLosHorarios.filter(hora => {
+    if (esHoy) {
+      const [h, m] = hora.split(':').map(Number)
+      const horaTurno = new Date()
+      horaTurno.setHours(h, m, 0, 0)
+      if (horaTurno < ahora) return false
+    }
+
+    const turnosAgendados = turnosStore.turnos.filter(t => 
+      t.fecha === form.value.fecha && 
+      t.hora === hora && 
+      t.estado !== 'cancelado'
+    )
+
+    return turnosAgendados.length < 2
+  })
+})
 
 function formatFecha(fecha) {
   if (!fecha) return '-'
@@ -97,10 +140,31 @@ function cerrarModal() {
 }
 
 async function guardar() {
-  if (!form.value.fecha || !form.value.hora || !form.value.mascota_id || !form.value.motivo) {
-    alert('Por favor, completá todos los datos del turno.')
+if (
+    !String(form.value.fecha).trim() || 
+    !String(form.value.hora).trim() || 
+    !String(form.value.motivo).trim() || 
+    !String(form.value.mascota_id).trim()
+  ) {
+    alert('Por favor, completá todos los campos obligatorios.')
     return
   }
+
+  if (form.value.fecha < hoy) {
+    alert('No podés agendar una fecha en el pasado.')
+    return
+  }
+
+  const turnosExistentes = turnosStore.turnos.filter(t => 
+    t.fecha === form.value.fecha && 
+    t.hora === form.value.hora && 
+    t.estado !== 'cancelado'
+  )
+  if (turnosExistentes.length >= 2) {
+    alert('Ambas salas están ocupadas en ese horario. Por favor elegí otro.')
+    return
+  }
+
   if (editando.value) {
     await turnosStore.actualizar(editando.value.id, form.value)
   } else {

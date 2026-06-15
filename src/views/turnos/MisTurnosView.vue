@@ -50,7 +50,19 @@
         <div class="modal">
           <h2>Pedir turno</h2>
           <input v-model="form.fecha" type="date" :min="hoy" />
-          <input v-model="form.hora" type="time" />
+
+          <select v-model="form.hora" :disabled="!form.fecha">
+          <option value="">
+          {{ form.fecha ? 'Seleccionar horario' : 'Primero elegí una fecha' }}
+          </option>
+          <option v-for="hora in horariosDisponibles" :key="hora" :value="hora">
+          {{ hora }} hs
+          </option>
+          </select>
+
+          <p v-if="form.fecha && horariosDisponibles.length === 0" style="color: #ef4444; font-size: 0.85rem; margin-top: 0.25rem;">
+           No quedan turnos disponibles para esta fecha.
+          </p>
           <select v-model="form.mascota_id">
             <option value="">Seleccionar mascota</option>
             <option v-for="m in misMascotasStore.mascotas" :key="m.id" :value="m.id">
@@ -71,6 +83,7 @@
   import { ref, computed, onMounted } from 'vue'
   import { useMisTurnosStore } from '@/stores/misTurnos'
   import { useMisMascotasStore } from '@/stores/misMascotas'
+
   
   const store = useMisTurnosStore()
   const misMascotasStore = useMisMascotasStore()
@@ -78,6 +91,36 @@
   const modalVisible = ref(false)
   const hoy = new Date().toISOString().slice(0, 10)
   const form = ref({ fecha: '', hora: '', mascota_id: '', motivo: '' })
+  const todosLosHorarios = [
+  '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+  '12:00', '12:30', '13:00', '13:30', '14:00', '14:30',
+  '15:00', '15:30', '16:00', '16:30', '17:00', '17:30'
+]
+
+
+  const horariosDisponibles = computed(() => {
+  if (!form.value.fecha) return []
+
+  const ahora = new Date()
+  const esHoy = form.value.fecha === hoy
+
+  return todosLosHorarios.filter(hora => {
+    if (esHoy) {
+      const [h, m] = hora.split(':').map(Number)
+      const horaTurno = new Date()
+      horaTurno.setHours(h, m, 0, 0)
+      if (horaTurno < ahora) return false
+    }
+
+    const turnosAgendados = store.turnos.filter(t => 
+      t.fecha === form.value.fecha && 
+      t.hora === hora && 
+      t.estado !== 'cancelado'
+    )
+
+    return turnosAgendados.length < 2
+  })
+})
   
   const turnosFiltrados = computed(() => {
     if (tab.value === 'proximos') {
@@ -109,6 +152,22 @@
     alert('Por favor, completá todos los datos para pedir el turno.')
     return
   }
+    
+    if (form.value.fecha < hoy) {
+    alert('No podés seleccionar una fecha en el pasado.')
+    return
+  }
+
+    const turnosExistentes = store.turnos.filter(t => 
+    t.fecha === form.value.fecha && 
+    t.hora === form.value.hora && 
+    t.estado !== 'cancelado'
+  )
+    if (turnosExistentes.length >= 2) {
+    alert('Disculpas, este horario acaba de completarse en este instante. Por favor elegí otro.')
+    return
+  }
+
     await store.crear(form.value)
     cerrarModal()
   }
