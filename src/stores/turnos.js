@@ -6,10 +6,20 @@ export const useTurnosStore = defineStore('turnos', () => {
   const turnos = ref([])
 
   async function cargar() {
-    const { data, error } = await supabase.from('turnos').select('*').order('fecha', { ascending: true })
-    if (error) throw error
-    turnos.value = data
-  }
+  const { data, error } = await supabase
+    .from('turnos')
+    .select(`
+      *,
+      mascotas (
+        nombre,
+        dueno_id,
+        duenos (nombre)
+      )
+    `)
+    .order('fecha', { ascending: true })
+  if (error) throw error
+  turnos.value = data
+}
 
   async function crear(data) {
     const { data: nuevo, error } = await supabase.from('turnos').insert(data).select().single()
