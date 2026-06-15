@@ -71,6 +71,16 @@ function cerrarModal() {
 }
 
 async function guardar() {
+  if (
+    !String(form.value.nombre).trim() || 
+    !String(form.value.especie).trim() || 
+    !String(form.value.raza).trim() || 
+    !String(form.value.edad).trim()
+  ) {
+    alert('Por favor, completá todos los campos obligatorios.')
+    return
+  }
+
   if (editando.value) {
     await store.actualizar(editando.value.id, form.value)
   } else {

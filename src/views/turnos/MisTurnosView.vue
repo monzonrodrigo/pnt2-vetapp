@@ -100,6 +100,15 @@
   function cerrarModal() { modalVisible.value = false; form.value = { fecha: '', hora: '', mascota_id: '', motivo: '' } }
   
   async function guardar() {
+    if (
+    !String(form.value.fecha).trim() || 
+    !String(form.value.hora).trim() || 
+    !String(form.value.mascota_id).trim() || 
+    !String(form.value.motivo).trim()
+  ) {
+    alert('Por favor, completá todos los datos para pedir el turno.')
+    return
+  }
     await store.crear(form.value)
     cerrarModal()
   }

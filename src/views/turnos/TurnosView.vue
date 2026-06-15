@@ -99,6 +99,15 @@
   }
   
   async function guardar() {
+    if (
+    !String(form.value.fecha).trim() || 
+    !String(form.value.hora).trim() || 
+    !String(form.value.mascota_id).trim() || 
+    !String(form.value.motivo).trim()
+  ) {
+    alert('Por favor, completá todos los datos del turno.')
+    return
+  }
     if (editando.value) {
       await turnosStore.actualizar(editando.value.id, form.value)
     } else {

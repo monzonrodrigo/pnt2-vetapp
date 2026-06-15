@@ -84,6 +84,14 @@ function cerrarModal() {
 }
 
 async function guardar() {
+  if (
+    !String(form.value.nombre).trim() || 
+    !String(form.value.email).trim() || 
+    !String(form.value.telefono).trim()
+  ) {
+    alert('Por favor, completá todos los campos obligatorios.')
+    return
+  }
   if (editando.value) {
     await store.actualizar(editando.value.id, form.value)
   } else {
