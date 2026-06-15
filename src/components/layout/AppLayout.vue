@@ -1,13 +1,13 @@
 <template>
   <div class="app-layout">
     <nav class="sidebar">
-      <div class="logo">
-        <h2>🐾 VetTech</h2>
-      </div>
-      <div class="user-name">{{ authStore.perfil?.nombre || authStore.user?.email }}</div>
-      <div class="rol-badge" :class="authStore.perfil?.rol">
-        {{ authStore.perfil?.rol || '...' }}
-      </div>
+        <div class="logo">
+          <h2>🐾 VetTech</h2>
+        </div>
+        <div class="user-name">{{ authStore.perfil?.nombre || authStore.user?.email }}</div>
+        <div v-if="authStore.isAdmin" class="rol-badge" :class="authStore.perfil?.rol">
+          {{ authStore.perfil?.rol }}
+        </div>
       <ul>
   <li><RouterLink to="/dashboard">Dashboard</RouterLink></li>
 
