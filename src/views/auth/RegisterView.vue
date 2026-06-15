@@ -41,8 +41,22 @@ async function handleRegister() {
     }
     mensaje.value = 'Cuenta creada. Revisá tu email para confirmar.'
     error.value = ''
+
   } catch (e) {
-    error.value = 'Error al registrarse: ' + e.message
+    let mensajeTraducido = 'Ocurrió un error inesperado.'
+
+    if (e.message.includes('User already registered')) {
+      mensajeTraducido = 'El correo electrónico ya está registrado.'
+    } else if (e.message.includes('Password should be at least 6 characters')) {
+      mensajeTraducido = 'La contraseña debe tener al menos 6 caracteres.'
+    } else if (e.message.includes('Invalid login credentials')) {
+      mensajeTraducido = 'Credenciales inválidas.'
+    } else if (e.message.includes('Unable to validate email address')) {
+      mensajeTraducido = 'El formato del correo es inválido.'
+    } else {
+      mensajeTraducido = e.message 
+    }
+    error.value = 'Error: ' + mensajeTraducido
   }
 }
 </script>
