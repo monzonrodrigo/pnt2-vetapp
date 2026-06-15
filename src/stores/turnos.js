@@ -21,11 +21,15 @@ export const useTurnosStore = defineStore('turnos', () => {
   turnos.value = data
 }
 
-  async function crear(data) {
-    const { data: nuevo, error } = await supabase.from('turnos').insert(data).select().single()
-    if (error) throw error
-    turnos.value.push(nuevo)
-  }
+async function crear(data) {
+  const { data: nuevo, error } = await supabase
+    .from('turnos')
+    .insert({ ...data, fecha: data.fecha })
+    .select(`*, mascotas(nombre, dueno_id, duenos(nombre))`)
+    .single()
+  if (error) throw error
+  turnos.value.push(nuevo)
+}
 
   async function actualizar(id, data) {
     const { data: actualizado, error } = await supabase.from('turnos').update(data).eq('id', id).select().single()

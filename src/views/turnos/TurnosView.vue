@@ -79,7 +79,8 @@ const form = ref({ fecha: '', hora: '', mascota_id: '', motivo: '', estado: 'pen
 
 function formatFecha(fecha) {
   if (!fecha) return '-'
-  return new Date(fecha).toLocaleDateString('es-AR')
+  const [year, month, day] = fecha.split('-')
+  return `${day}/${month}/${year}`
 }
 
 function abrirModal(turno = null) {

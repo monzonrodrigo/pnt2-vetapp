@@ -18,9 +18,16 @@ export const useMisMascotasStore = defineStore('misMascotas', () => {
 
   async function crear(data) {
     const { data: { user } } = await supabase.auth.getUser()
+    
+    const { data: dueno } = await supabase
+      .from('duenos')
+      .select('id')
+      .eq('email', user.email)
+      .single()
+  
     const { data: nueva, error } = await supabase
       .from('mascotas')
-      .insert({ ...data, usuario_id: user.id })
+      .insert({ ...data, usuario_id: user.id, dueno_id: dueno?.id })
       .select()
       .single()
     if (error) throw error
