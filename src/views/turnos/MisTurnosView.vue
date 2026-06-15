@@ -115,26 +115,7 @@
   </script>
   
   <style scoped>
-  .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-  h1 { font-size: 1.6rem; font-weight: 700; color: #1e293b; }
   .tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
   .tab { padding: 0.5rem 1.25rem; border-radius: 6px; border: 1px solid #e2e8f0; background: white; cursor: pointer; color: #64748b; font-size: 0.9rem; }
   .tab.active { background: #2563eb; color: white; border-color: #2563eb; }
-  .tabla-wrapper { background: white; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; }
-  table { width: 100%; border-collapse: collapse; }
-  th { background: #f8fafc; padding: 0.85rem 1rem; text-align: left; font-size: 0.8rem; text-transform: uppercase; color: #64748b; border-bottom: 1px solid #e2e8f0; }
-  td { padding: 0.85rem 1rem; border-bottom: 1px solid #f1f5f9; color: #334155; }
-  tr:last-child td { border-bottom: none; }
-  .empty { text-align: center; color: #94a3b8; padding: 2rem; }
-  .btn-primary { background: #2563eb; color: white; border: none; padding: 0.55rem 1.1rem; border-radius: 6px; cursor: pointer; }
-  .btn-secondary { background: #f1f5f9; color: #334155; border: none; padding: 0.55rem 1.1rem; border-radius: 6px; cursor: pointer; }
-  .btn-delete { background: #fef2f2; color: #ef4444; border: none; padding: 0.4rem 0.8rem; border-radius: 5px; cursor: pointer; }
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 100; }
-  .modal { background: white; border-radius: 12px; padding: 2rem; width: 400px; display: flex; flex-direction: column; gap: 1rem; }
-  .modal-actions { display: flex; justify-content: flex-end; gap: 0.75rem; }
-  select { padding: 0.6rem 0.8rem; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 1rem; color: #1e293b; background: #f8fafc; }
-  .badge { padding: 0.25rem 0.65rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; text-transform: capitalize; }
-  .badge.pendiente { background: #fef9c3; color: #854d0e; }
-  .badge.confirmado { background: #dcfce7; color: #166534; }
-  .badge.cancelado { background: #fee2e2; color: #991b1b; }
   </style>
